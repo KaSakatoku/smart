@@ -71,12 +71,12 @@ for rack_name in RACKS:
             button_label = f"✅ {label}" if ab.get("in_use") else label
             highlight = search.lower() in f"{ab['name']} {ab['clone']} {ab['fluor']}".lower()
             style = "border-bottom: 3px solid lime;" if highlight else ""
-            buttons += f"<button class='grid-button' style='{style}' onclick=\"window.location.href='?rack={rack_name}&pos={pos}'\">{button_label}</button>"
+            buttons += f"<button class='grid-button' style='{style}' onclick=\"window.location.search='?rack={rack_name}&pos={pos}'\">{button_label}</button>"
         buttons += "</div>"
         st.markdown(buttons, unsafe_allow_html=True)
 
 # URLパラメータから選択位置取得
-query_params = st.query_params
+query_params = st.query_params or {}
 if "rack" in query_params and "pos" in query_params:
     st.session_state.selected = (query_params["rack"][0], query_params["pos"][0])
 
