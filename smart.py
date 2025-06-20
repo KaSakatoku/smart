@@ -43,7 +43,7 @@ for rack_name in RACKS:
     rack = data.get(rack_name, {})
 
     for i in range(ROWS):
-        cols = st.columns(COLS)
+        cols = st.columns([1] * COLS, gap="small")
         for j in range(COLS):
             pos = f"{chr(65+i)}{j+1}"
             ab = rack.get(pos, {"name": "", "clone": "", "fluor": "", "in_use": False})
@@ -59,13 +59,17 @@ for rack_name in RACKS:
 if st.session_state.selected:
     rack_name, pos = st.session_state.selected
     st.markdown("---")
-    st.subheader(f"✏️ 編集: {rack_name} - {pos}")
+    edit_cols = st.columns([3, 2])
+    with edit_cols[0]:
+        st.subheader(f"✏️ 編集: {rack_name} - {pos}")
     ab = data[rack_name].get(pos, {"name": "", "clone": "", "fluor": "", "in_use": False})
 
-    ab["name"] = st.text_input("抗体名", ab["name"])
-    ab["clone"] = st.text_input("クローン", ab["clone"])
-    ab["fluor"] = st.text_input("蛍光色素", ab["fluor"])
-    ab["in_use"] = st.checkbox("使用中", ab.get("in_use", False))
+        with edit_cols[1]:
+        ab["name"] = st.text_input("抗体名", ab["name"])
+        ab["clone"] = st.text_input("クローン", ab["clone"])
+        ab["fluor"] = st.text_input("蛍光色素", ab["fluor"])
+        ab["in_use"] = st.checkbox("使用中", ab.get("in_use", False))
+    
 
     if st.button("保存"):
         data[rack_name][pos] = ab
