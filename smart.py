@@ -76,7 +76,7 @@ for rack_name in RACKS:
         st.markdown(buttons, unsafe_allow_html=True)
 
 # URLパラメータから選択位置取得
-query_params = st.experimental_get_query_params()
+query_params = st.query_params
 if "rack" in query_params and "pos" in query_params:
     st.session_state.selected = (query_params["rack"][0], query_params["pos"][0])
 
