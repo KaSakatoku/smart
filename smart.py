@@ -3,7 +3,7 @@ import json
 from github import Github, GithubException
 
 # GitHub連携情報
-REPO_NAME = "KaSakatoku/multi_rack_app"
+REPO_NAME = "KaSakatoku/smart""
 FILE_PATH = "rack.json"
 g = Github(st.secrets["GITHUB_TOKEN"])
 repo = g.get_repo(REPO_NAME)
