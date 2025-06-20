@@ -36,49 +36,24 @@ if "selected" not in st.session_state:
 
 search = st.text_input("🔍 検索（抗体名・クローン・蛍光色素）", "")
 
-# CSSで5列レイアウトを固定
-st.markdown("""
-<style>
-.grid-row {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    margin-bottom: 4px;
-}
-.grid-button {
-    flex: 1;
-    margin-right: 4px;
-    text-align: center;
-}
-.grid-button:last-child {
-    margin-right: 0;
-}
-</style>
-""", unsafe_allow_html=True)
-
+# ラックを縦並びで表示（st.columns 使用）
 for rack_name in RACKS:
     ROWS, COLS = RACKS[rack_name]
     st.subheader(f"🧊 {rack_name}")
     rack = data.get(rack_name, {})
-    positions = [f"{chr(65+i)}{j+1}" for i in range(ROWS) for j in range(COLS)]
 
     for i in range(ROWS):
-        buttons = "<div class='grid-row'>"
+        cols = st.columns(COLS)
         for j in range(COLS):
             pos = f"{chr(65+i)}{j+1}"
             ab = rack.get(pos, {"name": "", "clone": "", "fluor": "", "in_use": False})
             label = ab["name"] if ab["name"] else pos
-            button_label = f"✅ {label}" if ab.get("in_use") else label
             highlight = search.lower() in f"{ab['name']} {ab['clone']} {ab['fluor']}".lower()
-            style = "border-bottom: 3px solid lime;" if highlight else ""
-            buttons += f"<button class='grid-button' style='{style}' onclick=\"window.location.href='/?rack={rack_name}&pos={pos}'\">{button_label}</button>"
-        buttons += "</div>"
-        st.markdown(buttons, unsafe_allow_html=True)
-
-# URLパラメータから選択位置取得
-query_params = st.query_params if hasattr(st, "query_params") else st.experimental_get_query_params()
-if "rack" in query_params and "pos" in query_params:
-    st.session_state.selected = (query_params["rack"][0], query_params["pos"][0])
+            button_label = f"✅ {label}" if ab.get("in_use") else label
+            if cols[j].button(button_label, key=f"{rack_name}_{pos}"):
+                st.session_state.selected = (rack_name, pos)
+            if highlight:
+                cols[j].markdown("<div style='height:5px;background-color:lime;'></div>", unsafe_allow_html=True)
 
 # 編集フォーム
 if st.session_state.selected:
