@@ -42,11 +42,20 @@ for rack_name in RACKS:
     st.subheader(f"🧊 {rack_name}")
     rack = data.get(rack_name, {})
 
-    # グリッドスタイルをスマホでも横5列に固定
-    grid_html = "<style>.rack-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.25rem; }</style>"
+    # グリッドスタイル（デバイスに依らず5列）
+    grid_html = """
+    <style>
+    .rack-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(60px, 1fr));
+        gap: 0.25rem;
+    }
+    .rack-button {
+        white-space: nowrap;
+    }
+    </style>
+    """
     st.markdown(grid_html, unsafe_allow_html=True)
-    grid_buttons = []
-
     st.markdown('<div class="rack-grid">', unsafe_allow_html=True)
     for i in range(ROWS):
         for j in range(COLS):
