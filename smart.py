@@ -36,24 +36,30 @@ if "selected" not in st.session_state:
 
 search = st.text_input("🔍 検索（抗体名・クローン・蛍光色素）", "")
 
-# ラックを縦並びで表示（st.columns 使用）
+# ラックを縦並びで表示
 for rack_name in RACKS:
     ROWS, COLS = RACKS[rack_name]
     st.subheader(f"🧊 {rack_name}")
     rack = data.get(rack_name, {})
 
+    # グリッドスタイルをスマホでも横5列に固定
+    grid_html = "<style>.rack-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.25rem; }</style>"
+    st.markdown(grid_html, unsafe_allow_html=True)
+    grid_buttons = []
+
+    st.markdown('<div class="rack-grid">', unsafe_allow_html=True)
     for i in range(ROWS):
-        cols = st.columns([1] * COLS)
         for j in range(COLS):
             pos = f"{chr(65+i)}{j+1}"
             ab = rack.get(pos, {"name": "", "clone": "", "fluor": "", "in_use": False})
             label = ab["name"] if ab["name"] else pos
             highlight = search.lower() in f"{ab['name']} {ab['clone']} {ab['fluor']}".lower()
             button_label = f"✅ {label}" if ab.get("in_use") else label
-            if cols[j].button(button_label, key=f"{rack_name}_{pos}"):
+            if st.button(button_label, key=f"{rack_name}_{pos}"):
                 st.session_state.selected = (rack_name, pos)
             if highlight:
-                cols[j].markdown("<div style='height:5px;background-color:lime;'></div>", unsafe_allow_html=True)
+                st.markdown("<div style='height:3px;background-color:lime;'></div>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # 編集フォーム
 if st.session_state.selected:
