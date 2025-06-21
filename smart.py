@@ -42,33 +42,19 @@ for rack_name in RACKS:
     st.subheader(f"🧊 {rack_name}")
     rack = data.get(rack_name, {})
 
-    # グリッドスタイル（デバイスに依らず5列）
-    grid_html = """
-    <style>
-    .rack-grid {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(60px, 1fr));
-        gap: 0.25rem;
-    }
-    .rack-button {
-        white-space: nowrap;
-    }
-    </style>
-    """
-    st.markdown(grid_html, unsafe_allow_html=True)
-    st.markdown('<div class="rack-grid">', unsafe_allow_html=True)
+    # ボタングリッドの作成
     for i in range(ROWS):
+        row_cols = st.columns(COLS)
         for j in range(COLS):
             pos = f"{chr(65+i)}{j+1}"
             ab = rack.get(pos, {"name": "", "clone": "", "fluor": "", "in_use": False})
             label = ab["name"] if ab["name"] else pos
-            highlight = search.lower() in f"{ab['name']} {ab['clone']} {ab['fluor']}".lower()
+            highlight = search.lower() in f"{ab['name']} {ab['clone']} {ab['fluor']}`".lower()
             button_label = f"✅ {label}" if ab.get("in_use") else label
-            if st.button(button_label, key=f"{rack_name}_{pos}"):
+            if row_cols[j].button(button_label, key=f"{rack_name}_{pos}"):
                 st.session_state.selected = (rack_name, pos)
             if highlight:
-                st.markdown("<div style='height:3px;background-color:lime;'></div>", unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+                row_cols[j].markdown("<div style='height:3px;background-color:lime;'></div>", unsafe_allow_html=True)
 
 # 編集フォーム
 if st.session_state.selected:
