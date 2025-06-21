@@ -29,7 +29,7 @@ except GithubException as e:
         raise e
 
 st.set_page_config(layout="wide")
-st.title("🧪 抗体ラック管理アプリ（スマホ最適化）")
+st.title("🧪 抗体ラック管理アプリ（スマホ対応済み）")
 
 if "selected" not in st.session_state:
     st.session_state.selected = None
@@ -42,34 +42,40 @@ for rack_name in RACKS:
     st.subheader(f"🧊 {rack_name}")
     rack = data.get(rack_name, {})
 
-    # 横に固定列数でdiv構築
-    for j in range(COLS):
-        col_blocks = st.columns(ROWS)
-        for i in range(ROWS):
+    grid_html = "<div style='display: flex; flex-wrap: wrap; gap: 4px;'>"
+    for i in range(ROWS):
+        for j in range(COLS):
             pos = f"{chr(65+i)}{j+1}"
             ab = rack.get(pos, {"name": "", "clone": "", "fluor": "", "in_use": False})
             label = ab["name"] if ab["name"] else pos
-            highlight = search.lower() in f"{ab['name']} {ab['clone']} {ab['fluor']}".lower()
+            highlight = search.lower() in f"{ab['name']} {ab['clone']} {ab['fluor']}").lower()
             button_label = f"✅ {label}" if ab.get("in_use") else label
-            if col_blocks[i].button(button_label, key=f"{rack_name}_{pos}"):
-                st.session_state.selected = (rack_name, pos)
-            if highlight:
-                col_blocks[i].markdown("<div style='height:3px;background-color:lime;'></div>", unsafe_allow_html=True)
+            color = "lime" if highlight else "white"
+            grid_html += f"<button style='flex: 0 0 calc(20% - 4px); height: 32px; background-color: black; color: {color}; border: 1px solid #888;' onclick=\"window.location.href='?rack={rack_name}&pos={pos}'\">{button_label}</button>"
+    grid_html += "</div>"
+    st.markdown(grid_html, unsafe_allow_html=True)
+
+# クエリ取得
+query = st.query_params
+rack_param = query.get("rack")
+pos_param = query.get("pos")
+
+if rack_param and pos_param:
+    rack_name = rack_param
+    pos = pos_param
+    st.session_state.selected = (rack_name, pos)
 
 # 編集フォーム
 if st.session_state.selected:
     rack_name, pos = st.session_state.selected
     st.markdown("---")
-    edit_cols = st.columns([3, 2])
-    with edit_cols[0]:
-        st.subheader(f"✏️ 編集: {rack_name} - {pos}")
+    st.subheader(f"✏️ 編集: {rack_name} - {pos}")
     ab = data[rack_name].get(pos, {"name": "", "clone": "", "fluor": "", "in_use": False})
 
-    with edit_cols[1]:
-        ab["name"] = st.text_input("抗体名", ab["name"])
-        ab["clone"] = st.text_input("クローン", ab["clone"])
-        ab["fluor"] = st.text_input("蛍光色素", ab["fluor"])
-        ab["in_use"] = st.checkbox("使用中", ab.get("in_use", False))
+    ab["name"] = st.text_input("抗体名", ab["name"])
+    ab["clone"] = st.text_input("クローン", ab["clone"])
+    ab["fluor"] = st.text_input("蛍光色素", ab["fluor"])
+    ab["in_use"] = st.checkbox("使用中", ab.get("in_use", False))
 
     if st.button("保存"):
         data[rack_name][pos] = ab
