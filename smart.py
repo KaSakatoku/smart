@@ -42,16 +42,16 @@ for rack_name in RACKS:
     st.subheader(f"🧊 {rack_name}")
     rack = data.get(rack_name, {})
 
-    grid_html = "<div style='display: flex; flex-wrap: wrap; gap: 4px;'>"
+    grid_html = "<div style='display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;'>"
     for i in range(ROWS):
         for j in range(COLS):
             pos = f"{chr(65+i)}{j+1}"
             ab = rack.get(pos, {"name": "", "clone": "", "fluor": "", "in_use": False})
             label = ab["name"] if ab["name"] else pos
-            highlight = search.lower() in f"{ab['name']} {ab['clone']} {ab['fluor']}".lower()
+            highlight = search.lower() in f"{ab['name']} {ab['clone']} {ab['fluor']}`".lower()
             button_label = f"✅ {label}" if ab.get("in_use") else label
             color = "lime" if highlight else "white"
-            grid_html += f"<button style='flex: 0 0 calc(20% - 4px); height: 32px; background-color: black; color: {color}; border: 1px solid #888;' onclick=\"window.location.href='?rack={rack_name}&pos={pos}'\">{button_label}</button>"
+            grid_html += f"<button style='height: 32px; background-color: black; color: {color}; border: 1px solid #888;' onclick=\"window.location.href='?rack={rack_name}&pos={pos}'\">{button_label}</button>"
     grid_html += "</div>"
     st.markdown(grid_html, unsafe_allow_html=True)
 
